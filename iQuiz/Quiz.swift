@@ -8,7 +8,8 @@
 import UIKit
 
 struct Quiz {
-    var title: String
-    var description: String
-    var icon: UIImage
+    let title: String
+    let description: String
+    let icon: UIImage
+    let questions: [Question]
 }
