@@ -12,6 +12,7 @@ class QuestionViewController: UIViewController {
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var submitButton: UIButton!
+    @IBOutlet weak var backButton: UIButton!
 
     var session: QuizSession!
     private var selectedAnswerIndex: Int?
@@ -43,6 +44,10 @@ class QuestionViewController: UIViewController {
         
         performSegue(withIdentifier: "ShowAnswer", sender: nil)
     }
+    
+    @IBAction func backTapped(_ sender: Any) {
+        navigationController?.popToRootViewController(animated: true)
+    }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowAnswer",
@@ -51,6 +56,7 @@ class QuestionViewController: UIViewController {
             answerVC.selectedIndex = selectedAnswerIndex!
         }
     }
+    
 }
 
 extension QuestionViewController: UITableViewDataSource, UITableViewDelegate {

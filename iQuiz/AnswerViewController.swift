@@ -13,6 +13,7 @@ class AnswerViewController: UIViewController {
     @IBOutlet weak var correctAnswerLabel: UILabel!
     @IBOutlet weak var feedbackLabel: UILabel!
     @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var backButton: UIButton!
     
     var session: QuizSession!
     var selectedIndex: Int!
@@ -55,6 +56,10 @@ class AnswerViewController: UIViewController {
             }
             navigationController?.popViewController(animated: true)
         }
+    }
+    
+    @IBAction func backTapped(_ sender: Any) {
+        navigationController?.popToRootViewController(animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
