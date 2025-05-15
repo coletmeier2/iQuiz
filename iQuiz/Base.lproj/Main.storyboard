@@ -68,6 +68,42 @@
             </objects>
             <point key="canvasLocation" x="597.70992366412213" y="-75.352112676056336"/>
         </scene>
+        <!--Settings View Controller-->
+        <scene sceneID="v6e-N0-CbQ">
+            <objects>
+                <viewController storyboardIdentifier="SettingsViewController" id="I7f-kF-8sM" customClass="SettingsViewController" customModule="iQuiz" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="1wx-p9-BYf">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VaY-Xg-xsP">
+                                <rect key="frame" x="148" y="118" width="97" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2OR-2H-7jo">
+                                <rect key="frame" x="141" y="252" width="112" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Check Now"/>
+                                <connections>
+                                    <action selector="checkNowTapped:" destination="I7f-kF-8sM" eventType="touchUpInside" id="kpO-PK-tdR"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="xCw-ue-m42"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <connections>
+                        <outlet property="checkNowButton" destination="2OR-2H-7jo" id="eG5-dY-E5L"/>
+                        <outlet property="urlTextField" destination="VaY-Xg-xsP" id="4ZX-qq-Q8E"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dIq-zX-MSu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="584" y="716"/>
+        </scene>
         <!--Question View Controller-->
         <scene sceneID="bqb-SO-iI0">
             <objects>
