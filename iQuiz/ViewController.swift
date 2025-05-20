@@ -1,65 +1,60 @@
 // ViewController.swift
+
 import UIKit
 
 class ViewController: UIViewController {
-
     @IBOutlet private weak var tableView: UITableView!
-
     private var quizzes: [Quiz] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Quizzes"
         setupToolbar()
-        tableView.delegate = self
+        tableView.delegate   = self
         tableView.dataSource = self
-
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(didReceiveQuizzes(_:)),
-            name: .didDownloadQuizzes,
-            object: nil
-        )
 
         loadInitialQuizzes()
     }
 
     private func setupToolbar() {
-        let settingsButton = UIBarButtonItem(
+        let settings = UIBarButtonItem(
             title: "Settings",
             style: .plain,
             target: self,
-            action: #selector(showSettings)
+            action: #selector(openSystemSettings)
         )
-        navigationItem.rightBarButtonItem = settingsButton
+        navigationItem.rightBarButtonItem = settings
     }
 
-    @objc private func showSettings() {
-        let sb = UIStoryboard(name: "Main", bundle: nil)
-        let settingsVC = sb.instantiateViewController(
-            withIdentifier: "SettingsViewController"
-        ) as! SettingsViewController
-        navigationController?.pushViewController(settingsVC, animated: true)
+    @objc private func openSystemSettings() {
+        guard let url = URL(string: UIApplication.openSettingsURLString)
+        else { return }
+        UIApplication.shared.open(url)
     }
 
     private func loadInitialQuizzes() {
         let urlString = UserDefaults.standard.string(forKey: Defaults.quizURLKey)
             ?? Defaults.defaultQuizURL
+
         NetworkManager.shared.fetchQuizzes(from: urlString) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let fetched):
                     self.quizzes = fetched
+
                 case .failure:
-                    self.quizzes = self.defaultQuizzes()
+                    if let cached = NetworkManager.shared.loadCachedQuizzes() {
+                        self.quizzes = cached
+                    } else {
+                        self.quizzes = self.defaultQuizzes()
+                    }
                 }
                 self.tableView.reloadData()
             }
         }
     }
-
+    
     private func defaultQuizzes() -> [Quiz] {
-        // YOUR original hard‑coded quizzes:
         return [
             Quiz(
               title: "Mathematics",
@@ -90,45 +85,27 @@ class ViewController: UIViewController {
             )
         ]
     }
-
-    @objc private func didReceiveQuizzes(_ notification: Notification) {
-        if let newQuizzes = notification.object as? [Quiz] {
-            quizzes = newQuizzes
-            tableView.reloadData()
-        }
-    }
 }
 
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView,
-                   numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tv: UITableView, numberOfRowsInSection section: Int) -> Int {
         return quizzes.count
     }
-
-    func tableView(_ tableView: UITableView,
-                   cellForRowAt indexPath: IndexPath)
-                 -> UITableViewCell {
-        let quiz = quizzes[indexPath.row]
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: "QuizCell",
-            for: indexPath
-        )
-        cell.textLabel?.text = quiz.title
+    func tableView(_ tv: UITableView, cellForRowAt ip: IndexPath) -> UITableViewCell {
+        let quiz = quizzes[ip.row]
+        let cell = tv.dequeueReusableCell(withIdentifier: "QuizCell", for: ip)
+        cell.textLabel?.text       = quiz.title
         cell.detailTextLabel?.text = quiz.description
-        cell.imageView?.image = quiz.icon
+        cell.imageView?.image      = quiz.icon
         return cell
     }
-
-    func tableView(_ tableView: UITableView,
-                   didSelectRowAt indexPath: IndexPath) {
-        let session = QuizSession(quiz: quizzes[indexPath.row])
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let questionVC = storyboard.instantiateViewController(
-            withIdentifier: "QuestionViewController"
-        ) as! QuestionViewController
-        questionVC.session = session
-        navigationController?.pushViewController(questionVC, animated: true)
-        tableView.deselectRow(at: indexPath, animated: true)
+    func tableView(_ tv: UITableView, didSelectRowAt ip: IndexPath) {
+        let session = QuizSession(quiz: quizzes[ip.row])
+        let vc = UIStoryboard(name: "Main", bundle: nil)
+            .instantiateViewController(withIdentifier: "QuestionViewController")
+            as! QuestionViewController
+        vc.session = session
+        navigationController?.pushViewController(vc, animated: true)
+        tv.deselectRow(at: ip, animated: true)
     }
 }

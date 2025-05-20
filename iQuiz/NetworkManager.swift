@@ -15,28 +15,32 @@ class NetworkManager {
     func fetchQuizzes(from urlString: String,
                       completion: @escaping (Result<[Quiz], Error>) -> Void) {
         guard let url = URL(string: urlString) else {
-            completion(.failure(NetworkError.invalidURL))
-            return
+            completion(.failure(NetworkError.invalidURL)); return
         }
 
-        let task = URLSession.shared.dataTask(with: url) { data, _, err in
+        URLSession.shared.dataTask(with: url) { data, _, err in
             if let err = err {
-                completion(.failure(err))
-                return
+                completion(.failure(err)); return
             }
             guard let data = data else {
-                completion(.failure(NetworkError.noData))
-                return
+                completion(.failure(NetworkError.noData)); return
             }
+
             do {
-                let raw = try JSONDecoder().decode([RawQuiz].self, from: data)
-                let quizzes = raw.map { $0.toQuiz() }
+                let raws = try JSONDecoder().decode([RawQuiz].self, from: data)
+                let quizzes = raws.map { $0.toQuiz() }
+
+                do {
+                    try StorageManager.shared.saveQuizData(data)
+                } catch {
+                    print("⚠️ Failed to save quizzes locally: \(error)")
+                }
+
                 completion(.success(quizzes))
             } catch {
                 completion(.failure(error))
             }
-        }
-        task.resume()
+        }.resume()
     }
 
     enum NetworkError: LocalizedError {
@@ -49,8 +53,6 @@ class NetworkManager {
         }
     }
 }
-
-// MARK: – JSON mapping structs
 
 private struct RawQuiz: Decodable {
     let title: String
@@ -77,8 +79,20 @@ private struct RawQuestion: Decodable {
     let answer: String
 
     func toQuestion() -> Question {
-        let raw = Int(answer) ?? 1
-        let idx = min(max(raw - 1, 0), answers.count - 1)
+        let rawIdx = (Int(answer) ?? 1) - 1
+        let idx = min(max(rawIdx, 0), answers.count - 1)
         return Question(text: text, options: answers, correctIndex: idx)
+    }
+}
+
+extension NetworkManager {
+    func loadCachedQuizzes() -> [Quiz]? {
+        guard let data = try? StorageManager.shared.loadQuizData() else {
+            return nil
+        }
+        guard let raws = try? JSONDecoder().decode([RawQuiz].self, from: data) else {
+            return nil
+        }
+        return raws.map { $0.toQuiz() }
     }
 }
